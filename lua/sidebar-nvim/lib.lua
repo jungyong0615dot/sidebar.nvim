@@ -64,6 +64,10 @@ function M.setup()
 end
 
 function M.update()
+    if vim.g.sidebar_open == false or vim.t.dap_ui_initialized == true then
+        return
+    end
+
     if M.timer ~= nil then
         M.timer:stop()
         M.timer:close()
@@ -277,6 +281,9 @@ end
 function M.on_tab_change()
     vim.schedule(function()
         if not view.is_win_open() and view.is_win_open({ any_tabpage = true }) then
+            if vim.g.sidebar_open == false or vim.t.dap_ui_initialized == true then
+                return
+            end
             view.open({ focus = false })
         end
     end)
@@ -285,6 +292,9 @@ end
 function M.on_win_leave()
     vim.defer_fn(function()
         if not view.is_win_open() then
+            return
+        end
+        if vim.g.sidebar_open == false or vim.t.dap_ui_initialized == true then
             return
         end
 
