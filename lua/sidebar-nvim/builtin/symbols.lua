@@ -41,8 +41,8 @@ local function get_range(s)
 end
 
 local function build_loclist(filepath, loclist_items, symbols, level)
-    table.sort(symbols, function(a, _)
-        return get_range(a).start.line < get_range(a).start.line
+    table.sort(symbols, function(a, b)
+        return get_range(a).start.line < get_range(b).start.line
     end)
 
     for _, symbol in ipairs(symbols) do
