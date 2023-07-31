@@ -122,7 +122,9 @@ end
 function M.focus(opts)
     if view.is_win_open() then
         local winnr = view.get_winnr()
-        view.focus(winnr)
+        if opts and opts.get_focus then
+            view.focus(winnr)
+        end
     else
         M.open({ focus = true })
     end
@@ -134,10 +136,17 @@ function M.focus(opts)
             content_only = false
         end
 
+        local winnr = view.get_winnr()
+        local currrent_cursor = api.nvim_win_get_cursor(winnr)
         local cursor = M.find_cursor_at_section_index(opts.section_index, { content_only = content_only })
 
+        if (cursor and cursor[1] > currrent_cursor[1]) or currrent_cursor == nil then
+            cursor =
+                M.find_cursor_at_section_index(opts.section_index, { content_only = content_only, at_end = true })
+        end
+
         if cursor then
-            api.nvim_win_set_cursor(0, cursor)
+            api.nvim_win_set_cursor(winnr, cursor)
         end
     end
 end
@@ -219,6 +228,12 @@ function M.find_cursor_at_section_index(index, opts)
 
     for section_index, section_line_index in ipairs(M.State.section_line_indexes) do
         if section_index == index then
+
+            if opts.at_end then
+                cursor[1] = get_end_line(opts.content_only, section_line_index) - 2
+                return cursor
+            end
+
             local start_line = get_start_line(opts.content_only, section_line_index)
 
             cursor[1] = start_line
